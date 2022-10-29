@@ -63,7 +63,6 @@ impl Game {
     }
     pub fn check_eat(&mut self, next_point: &Point) {
         if next_point.x == self.apple.location.x && next_point.y == self.apple.location.y {
-            println!("Checking eat");
             let tail = self.snake.body.back().unwrap().clone();
             self.snake.body.push_back(tail);
             self.apple = Apple::rand_apple(self.board.width, self.board.height);
@@ -112,13 +111,15 @@ impl Game {
         for i in 0..snake.len() {
             self.board.state[snake[i].y as usize][snake[i].x as usize] = 1;
         }
-        self.board.state[self.apple.location.y as usize][self.apple.location.x as usize] = 2;
-
         //check if app inside snake
         while self.board.state[self.apple.location.y as usize][self.apple.location.x as usize] == 1
         {
             self.apple = Apple::rand_apple(self.board.width, self.board.height);
         }
+        self.board.state[self.apple.location.y as usize][self.apple.location.x as usize] = 2;
+    }
+    pub fn update_direction(&mut self, direction: Direction) {
+        self.snake.direction = direction;
     }
     pub fn display(&self) {
         for row in self.board.state.iter() {

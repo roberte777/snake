@@ -3,6 +3,7 @@ use crate::game::Point;
 use self::linked_list::LinkedList;
 pub mod linked_list;
 
+#[derive(Debug)]
 pub enum Direction {
     Up,
     Down,
