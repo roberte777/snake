@@ -36,6 +36,7 @@ pub struct Game {
     snake: Snake,
     board: Board,
     apple: Apple,
+    pub score: i32,
     pub lost: bool,
 }
 
@@ -49,6 +50,7 @@ impl Game {
             board: Board::new(width, height, &snake, &apple),
             snake,
             apple,
+            score: 0,
             lost: false,
         }
     }
@@ -66,6 +68,7 @@ impl Game {
             let tail = self.snake.body.back().unwrap().clone();
             self.snake.body.push_back(tail);
             self.apple = Apple::rand_apple(self.board.width, self.board.height);
+            self.score += 5;
         }
     }
 
