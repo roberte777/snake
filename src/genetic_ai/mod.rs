@@ -1,3 +1,4 @@
+pub mod population;
 use std::fmt::Display;
 
 use rand::{distributions::Standard, prelude::*};
@@ -12,6 +13,31 @@ impl Agent {
             fitness: 0,
             gene: Tree::new(depth_limit, method),
         }
+    }
+    pub fn evaluate(&mut self) {
+        // use this to collapse the tree
+        // let mut level = 0;
+        // let mut stack = vec![];
+        // let mut curr = &self.root;
+        // loop {
+        //     if curr.left.is_some() {
+        //         stack.push(curr);
+        //         curr = curr.left.as_ref().unwrap();
+        //     } else {
+        //         write!(f, "{}\n", curr)?;
+        //         if curr.right.is_some() {
+        //             curr = curr.right.as_ref().unwrap();
+        //         } else {
+        //             if stack.is_empty() {
+        //                 break;
+        //             }
+        //             curr = stack.pop().unwrap();
+        //             write!(f, "{}\n", curr)?;
+        //             curr = curr.right.as_ref().unwrap();
+        //         }
+        //     }
+        // }
+        todo!()
     }
 }
 
@@ -96,28 +122,6 @@ impl Tree {
 
 impl Display for Tree {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        // use this to collapse the tree
-        // let mut level = 0;
-        // let mut stack = vec![];
-        // let mut curr = &self.root;
-        // loop {
-        //     if curr.left.is_some() {
-        //         stack.push(curr);
-        //         curr = curr.left.as_ref().unwrap();
-        //     } else {
-        //         write!(f, "{}\n", curr)?;
-        //         if curr.right.is_some() {
-        //             curr = curr.right.as_ref().unwrap();
-        //         } else {
-        //             if stack.is_empty() {
-        //                 break;
-        //             }
-        //             curr = stack.pop().unwrap();
-        //             write!(f, "{}\n", curr)?;
-        //             curr = curr.right.as_ref().unwrap();
-        //         }
-        //     }
-        // }
         self.print(f)?;
         Ok(())
     }
