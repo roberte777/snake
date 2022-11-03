@@ -1,4 +1,4 @@
-use snake::{game::Game, snake::Direction};
+use snake::gym::{game::Game, snake::Direction};
 fn main() {
     println!("Hello, world!");
     let mut game = Game::new();

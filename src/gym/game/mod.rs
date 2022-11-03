@@ -1,4 +1,4 @@
-use crate::snake::{Direction, Snake};
+use crate::gym::snake::{Direction, Snake};
 use rand::prelude::*;
 
 struct Board {

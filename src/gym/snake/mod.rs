@@ -1,4 +1,4 @@
-use crate::game::Point;
+use crate::gym::game::Point;
 
 use self::linked_list::LinkedList;
 pub mod linked_list;

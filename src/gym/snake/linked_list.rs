@@ -1,4 +1,4 @@
-use crate::game::Point;
+use crate::gym::game::Point;
 
 use super::Node;
 pub struct LinkedList<T: Copy> {
