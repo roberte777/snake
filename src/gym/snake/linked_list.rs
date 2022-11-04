@@ -2,7 +2,8 @@ use crate::gym::game::Point;
 
 use super::Node;
 pub struct LinkedList<T: Copy> {
-    head: Option<Box<Node<T>>>,
+    pub head: Option<Box<Node<T>>>,
+    pub length: usize,
 }
 
 impl<T: Copy> Clone for LinkedList<T> {
@@ -19,7 +20,11 @@ impl<T: Copy> Clone for LinkedList<T> {
 
 impl<T: Copy> LinkedList<T> {
     pub fn new(head: Option<Box<Node<T>>>) -> Self {
-        LinkedList { head }
+        let length = match Some(&head) {
+            Some(_head) => 1,
+            None => 0,
+        };
+        LinkedList { head, length }
     }
     pub fn front(&self) -> Option<&T> {
         self.head.as_ref().map(|node| &node.value)
@@ -41,6 +46,7 @@ impl<T: Copy> LinkedList<T> {
             next: self.head.take(),
         });
         self.head = Some(new_head);
+        self.length += 1;
     }
     pub fn push_back(&mut self, value: T) {
         let mut tail = self.head.as_mut();
@@ -53,6 +59,7 @@ impl<T: Copy> LinkedList<T> {
             tail = node.next.as_mut();
         }
         self.head = Some(new_tail);
+        self.length += 1;
     }
     pub fn pop_back(&mut self) -> Option<T> {
         let mut current = &mut self.head;
@@ -62,6 +69,7 @@ impl<T: Copy> LinkedList<T> {
                 if next.next.is_none() {
                     let value = next.value;
                     node.next = None;
+                    self.length -= 1;
                     return Some(value);
                 }
             }

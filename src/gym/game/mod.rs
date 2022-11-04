@@ -1,11 +1,15 @@
+use std::{borrow::BorrowMut, fmt::Display};
+
 use crate::gym::snake::{Direction, Snake};
 use rand::prelude::*;
 
-struct Board {
+#[derive(Debug, Clone)]
+pub struct Board {
     pub width: i32,
     pub height: i32,
     pub state: Vec<Vec<i32>>,
 }
+
 impl Board {
     pub fn new(width: i32, height: i32, snake: &Snake, apple: &Apple) -> Self {
         let mut state = Vec::new();
@@ -26,17 +30,30 @@ impl Board {
         }
     }
 }
+impl Display for Board {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        for row in &self.state {
+            for cell in row {
+                write!(f, "{}", cell)?;
+            }
+            writeln!(f)?;
+        }
+        Ok(())
+    }
+}
+
 #[derive(Copy, Clone)]
 pub struct Point {
     pub x: i32,
     pub y: i32,
 }
 
+#[derive(Clone)]
 pub struct Game {
-    snake: Snake,
-    board: Board,
-    apple: Apple,
-    pub score: i32,
+    pub snake: Snake,
+    pub board: Board,
+    pub apple: Apple,
+    pub score: u32,
     pub lost: bool,
 }
 
@@ -133,9 +150,36 @@ impl Game {
         }
         println!("\n");
     }
+    pub fn reset(&mut self) {
+        self.snake = Snake::new();
+        self.apple = Apple::rand_apple(self.board.width, self.board.height);
+        self.score = 0;
+        self.lost = false;
+    }
+    pub fn get_possible_states(&self) -> Vec<(Direction, Game)> {
+        //get all possible states after one move
+        let mut states = Vec::new();
+        let mut game = self.clone();
+        game.update_direction(Direction::Up);
+        game.update();
+        states.push((Direction::Up, game));
+        game = self.clone();
+        game.update_direction(Direction::Down);
+        game.update();
+        states.push((Direction::Down, game));
+        game = self.clone();
+        game.update_direction(Direction::Left);
+        game.update();
+        states.push((Direction::Left, game));
+        game = self.clone();
+        game.update_direction(Direction::Right);
+        game.update();
+        states.push((Direction::Right, game));
+        states
+    }
 }
-
-struct Apple {
+#[derive(Clone)]
+pub struct Apple {
     pub location: Point,
 }
 impl Apple {
@@ -152,7 +196,7 @@ impl Apple {
         let x = rng.gen_range(0..width);
         let y = rng.gen_range(0..height);
         Apple {
-            location: Point { x: 0, y },
+            location: Point { x, y },
         }
     }
     pub fn from_list(list: Vec<Point>) -> Apple {

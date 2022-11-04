@@ -3,7 +3,7 @@ use crate::gym::game::Point;
 use self::linked_list::LinkedList;
 pub mod linked_list;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum Direction {
     Up,
     Down,
@@ -11,6 +11,7 @@ pub enum Direction {
     Right,
 }
 
+#[derive(Clone)]
 pub struct Snake {
     pub body: LinkedList<Point>,
     pub direction: Direction,
@@ -38,7 +39,7 @@ impl Snake {
 
 #[derive(Clone)]
 pub struct Node<T: Copy> {
-    value: T,
+    pub value: T,
     next: Option<Box<Node<T>>>,
 }
 

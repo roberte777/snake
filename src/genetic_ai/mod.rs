@@ -2,9 +2,15 @@ pub mod population;
 use std::fmt::Display;
 
 use rand::{distributions::Standard, prelude::*};
+
+use crate::gym::{
+    game::{Board, Game},
+    snake::Direction,
+};
 pub struct Agent {
-    pub fitness: i32,
+    pub fitness: u32,
     pub gene: Tree,
+    pub final_board: Option<Board>,
 }
 
 impl Agent {
@@ -12,32 +18,35 @@ impl Agent {
         Agent {
             fitness: 0,
             gene: Tree::new(depth_limit, method),
+            final_board: None,
         }
     }
-    pub fn evaluate(&mut self) {
-        // use this to collapse the tree
-        // let mut level = 0;
-        // let mut stack = vec![];
-        // let mut curr = &self.root;
-        // loop {
-        //     if curr.left.is_some() {
-        //         stack.push(curr);
-        //         curr = curr.left.as_ref().unwrap();
-        //     } else {
-        //         write!(f, "{}\n", curr)?;
-        //         if curr.right.is_some() {
-        //             curr = curr.right.as_ref().unwrap();
-        //         } else {
-        //             if stack.is_empty() {
-        //                 break;
-        //             }
-        //             curr = stack.pop().unwrap();
-        //             write!(f, "{}\n", curr)?;
-        //             curr = curr.right.as_ref().unwrap();
-        //         }
-        //     }
-        // }
-        todo!()
+    pub fn evaluate(&mut self, state: &Game) -> f32 {
+        //decide which direction to go
+        // let current = &self.gene.root;
+        // self.fitness = self.eval_recurse(state, current);
+        let current = &self.gene.root;
+        let test = self.eval_recurse(state, current);
+        return test;
+    }
+    pub fn eval_recurse(&self, state: &Game, node: &Node) -> f32 {
+        match &node.node_type {
+            NodeType::Leaf(leaf) => {
+                let temp = leaf.get_value(state);
+                if temp.is_nan() {
+                    println!("found nan in leaf");
+                }
+                return leaf.get_value(state);
+            }
+            NodeType::Internal(branch) => {
+                let left = self.eval_recurse(state, &node.left.as_ref().unwrap());
+                let right = self.eval_recurse(state, &node.right.as_ref().unwrap());
+                if left.is_nan() || right.is_nan() {
+                    println!("found nan in internal");
+                }
+                return branch.eval(left, right);
+            }
+        }
     }
 }
 
@@ -172,14 +181,35 @@ pub enum InternalNode {
     Sub,
     Mul,
     Div,
+    Max,
+    Min,
+}
+impl InternalNode {
+    fn eval(&self, left: f32, right: f32) -> f32 {
+        match self {
+            InternalNode::Add => left + right,
+            InternalNode::Sub => left - right,
+            InternalNode::Mul => left * right,
+            InternalNode::Div => {
+                if right == 0.0 {
+                    return left;
+                }
+                left / right
+            }
+            InternalNode::Max => left.max(right),
+            InternalNode::Min => left.min(right),
+        }
+    }
 }
 impl Distribution<InternalNode> for Standard {
     fn sample<R: Rng + ?Sized>(&self, rng: &mut R) -> InternalNode {
-        match rng.gen_range(0..4) {
+        match rng.gen_range(0..6) {
             0 => InternalNode::Add,
             1 => InternalNode::Sub,
             2 => InternalNode::Mul,
             3 => InternalNode::Div,
+            4 => InternalNode::Max,
+            5 => InternalNode::Min,
             _ => InternalNode::Add,
         }
     }
@@ -188,14 +218,66 @@ impl Distribution<InternalNode> for Standard {
 pub enum LeafNode {
     SnakeLength,
     SnakeDirection,
-    AppleLocation,
+    AppleDistance,
+    AppleDirection,
+    Random,
+    Row,
+    Column,
+}
+impl LeafNode {
+    fn get_value(&self, game: &Game) -> f32 {
+        match self {
+            LeafNode::SnakeLength => game.snake.body.length as f32,
+            LeafNode::SnakeDirection => match game.snake.direction {
+                Direction::Up => 0.0,
+                Direction::Down => 1.0,
+                Direction::Left => 2.0,
+                Direction::Right => 3.0,
+            },
+            LeafNode::AppleDistance => {
+                let apple_loc = game.apple.location;
+                let snake_head = match &game.snake.body.head {
+                    Some(head) => head,
+                    None => return 0.0,
+                };
+                //manhattan distance
+                ((apple_loc.x - snake_head.value.x).abs()
+                    + (apple_loc.y - snake_head.value.y).abs()) as f32
+            }
+            LeafNode::AppleDirection => {
+                let apple_loc = game.apple.location;
+                let snake_head = match &game.snake.body.head {
+                    Some(head) => head,
+                    None => return 0.0,
+                };
+                let x_diff = apple_loc.x as f32 - snake_head.value.x as f32;
+                let y_diff = apple_loc.y as f32 - snake_head.value.y as f32;
+                let angle = y_diff.atan2(x_diff);
+                let snake_angle = match game.snake.direction {
+                    Direction::Up => 0.0,
+                    Direction::Down => 1.0,
+                    Direction::Left => 2.0,
+                    Direction::Right => 3.0,
+                };
+                let angle_diff = angle - snake_angle;
+                angle_diff
+            }
+            LeafNode::Random => rand::random(),
+            LeafNode::Row => game.snake.body.head.as_ref().unwrap().value.y as f32,
+            LeafNode::Column => game.snake.body.head.as_ref().unwrap().value.x as f32,
+        }
+    }
 }
 impl Distribution<LeafNode> for Standard {
     fn sample<R: Rng + ?Sized>(&self, rng: &mut R) -> LeafNode {
-        match rng.gen_range(0..3) {
+        match rng.gen_range(0..7) {
             0 => LeafNode::SnakeLength,
             1 => LeafNode::SnakeDirection,
-            2 => LeafNode::AppleLocation,
+            2 => LeafNode::AppleDistance,
+            3 => LeafNode::AppleDirection,
+            4 => LeafNode::Random,
+            5 => LeafNode::Row,
+            6 => LeafNode::Column,
             _ => LeafNode::SnakeLength,
         }
     }
