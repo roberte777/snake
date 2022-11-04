@@ -24,6 +24,7 @@ impl Population {
         println!("population size: {}", self.individuals.len());
         for individual in &mut self.individuals {
             let mut count = 0;
+
             while !game.lost {
                 if count > 10000 {
                     println!("found infinite loop");
