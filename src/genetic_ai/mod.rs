@@ -5,12 +5,13 @@ use rand::{distributions::Standard, prelude::*};
 
 use crate::gym::{
     game::{Board, Game},
-    snake::Direction,
+    snake::{Direction, Snake},
 };
 pub struct Agent {
     pub fitness: u32,
     pub gene: Tree,
     pub final_board: Option<Board>,
+    pub final_snake: Option<Snake>,
 }
 
 impl Agent {
@@ -19,6 +20,7 @@ impl Agent {
             fitness: 0,
             gene: Tree::new(depth_limit, method),
             final_board: None,
+            final_snake: None,
         }
     }
     pub fn evaluate(&mut self, state: &Game) -> f32 {

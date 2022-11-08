@@ -6,5 +6,6 @@ fn main() {
     population.evaluate(&mut game);
     let best = population.return_best();
     let board = best.final_board.as_ref().unwrap();
-    println!("{} {}", board, best.fitness);
+    let snake = best.final_snake.as_ref().unwrap();
+    println!("{} {} {}", board, best.fitness, snake.body);
 }

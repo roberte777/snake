@@ -1,3 +1,5 @@
+use std::fmt::{Display, Formatter};
+
 use crate::gym::game::Point;
 
 use super::Node;
@@ -99,5 +101,16 @@ impl Iterator for LinkedListIterator<Point> {
             self.current = node.next;
             node.value
         })
+    }
+}
+
+impl Display for LinkedList<Point> {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        let mut current = self.head.as_ref();
+        while let Some(node) = current {
+            write!(f, "{}, ", node.value)?;
+            current = node.next.as_ref();
+        }
+        Ok(())
     }
 }

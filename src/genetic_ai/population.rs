@@ -62,6 +62,7 @@ impl Population {
 
             individual.final_board = Some(game.board.clone());
             individual.fitness = game.score;
+            individual.final_snake = Some(game.snake.clone());
             game.reset();
         }
     }
