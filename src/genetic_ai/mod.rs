@@ -58,7 +58,7 @@ pub enum Method {
 }
 
 pub struct Tree {
-    root: Node,
+    pub root: Node,
 }
 impl Tree {
     fn new(depth_limit: u32, method: Method) -> Tree {
@@ -70,6 +70,7 @@ impl Tree {
             root: starting_node,
         }
     }
+
     fn grow(depth_limit: u32, curr_level: u32, threshhold: f32) -> Node {
         if curr_level == depth_limit {
             return Node::new_leaf();
@@ -144,7 +145,7 @@ pub struct Node {
     pub right: Option<Box<Node>>,
 }
 impl Node {
-    fn new(node_type: NodeType) -> Node {
+    pub fn new(node_type: NodeType) -> Node {
         Node {
             node_type,
             left: None,

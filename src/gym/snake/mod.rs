@@ -35,6 +35,21 @@ impl Snake {
         self.body.push_front(head);
         self.body.pop_back();
     }
+
+    pub fn check_self_collision(&self) -> bool {
+        let head = self.body.front().unwrap();
+        let mut current = self.body.head.as_ref().unwrap().next.as_ref();
+        while let Some(node) = current {
+            if node.value.x == (*head).x && node.value.y == (*head).y {
+                return true;
+            }
+            current = node.next.as_ref();
+        }
+        false
+    }
+
+
+
 }
 
 #[derive(Clone)]
