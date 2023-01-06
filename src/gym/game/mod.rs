@@ -84,7 +84,7 @@ impl Game {
         if next.y < 0 || next.y >= self.board.height {
             return true;
         }
-        false
+        self.snake.check_self_collision()
     }
     pub fn check_eat(&mut self, next_point: &Point) {
         if next_point.x == self.apple.location.x && next_point.y == self.apple.location.y {
@@ -144,6 +144,52 @@ impl Game {
         }
         self.board.state[self.apple.location.y as usize][self.apple.location.x as usize] = 2;
     }
+
+    pub fn test_update(&mut self) {
+        //check next square
+        let next: Point;
+        match self.snake.direction {
+            Direction::Up => {
+                next = Point {
+                    x: self.snake.body.front().unwrap().x,
+                    y: self.snake.body.front().unwrap().y - 1,
+                }
+            }
+            Direction::Down => {
+                next = Point {
+                    x: self.snake.body.front().unwrap().x,
+                    y: self.snake.body.front().unwrap().y + 1,
+                }
+            }
+            Direction::Left => {
+                next = Point {
+                    x: self.snake.body.front().unwrap().x - 1,
+                    y: self.snake.body.front().unwrap().y,
+                }
+            }
+            Direction::Right => {
+                next = Point {
+                    x: self.snake.body.front().unwrap().x + 1,
+                    y: self.snake.body.front().unwrap().y,
+                }
+            }
+        }
+
+        if self.check_loss(&next) {
+            self.lost = true;
+            return;
+        }
+
+        self.snake.slither();
+        self.board.state = vec![vec![0; 10]; 10];
+        //draw snake
+        let snake = &self.snake.body.clone().into_iter().collect::<Vec<Point>>();
+        for i in 0..snake.len() {
+            self.board.state[snake[i].y as usize][snake[i].x as usize] = 1;
+        }
+        //check if app inside snake
+    }
+
     pub fn update_direction(&mut self, direction: Direction) {
         self.snake.direction = direction;
     }
@@ -165,21 +211,22 @@ impl Game {
     pub fn get_possible_states(&self) -> Vec<(Direction, Game)> {
         //get all possible states after one move
         let mut states = Vec::new();
+
         let mut game = self.clone();
         game.update_direction(Direction::Up);
-        game.update();
+        game.test_update();
         states.push((Direction::Up, game));
         game = self.clone();
         game.update_direction(Direction::Down);
-        game.update();
+        game.test_update();
         states.push((Direction::Down, game));
         game = self.clone();
         game.update_direction(Direction::Left);
-        game.update();
+        game.test_update();
         states.push((Direction::Left, game));
         game = self.clone();
         game.update_direction(Direction::Right);
-        game.update();
+        game.test_update();
         states.push((Direction::Right, game));
         states
     }

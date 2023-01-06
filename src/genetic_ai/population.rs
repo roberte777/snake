@@ -5,12 +5,12 @@ use crate::gym::{game::Game, snake::Direction};
 use super::{Agent, Method};
 
 pub struct Population {
-    individuals: Vec<Agent>,
+    pub individuals: Vec<Agent>,
 }
 impl Population {
     pub fn new(size: u32, depth_limit: u32) -> Population {
-        //init with ramped half and half
         let mut individuals = Vec::new();
+
         for _ in 0..size / 2 {
             individuals.push(Agent::new(depth_limit, Method::Grow));
         }
@@ -33,6 +33,7 @@ impl Population {
 
                 let starting_score = game.score;
                 let moves = game.get_possible_states();
+
                 let best_move: Direction = moves
                     .iter()
                     .map(|(dir, game)| (dir, individual.evaluate(game)))
@@ -49,8 +50,11 @@ impl Population {
                     .unwrap()
                     .0
                     .to_owned();
+
                 game.update_direction(best_move);
                 game.update();
+                game.display();
+
                 if game.score == starting_score {
                     count += 1;
                 } else {
