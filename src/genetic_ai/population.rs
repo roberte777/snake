@@ -37,15 +37,13 @@ impl Population {
                     .iter()
                     .map(|(dir, game)| (dir, individual.evaluate(game)))
                     .max_by(|(_, a), (_, b)| {
-                        if a.is_nan()
-                            || b.is_nan()
-                            || *a == INFINITY
-                            || INFINITY == *b
-                            || *a == -INFINITY
-                            || -INFINITY == *b
-                        {
-                            panic!("found nan");
-                        }
+                        assert!(!a.is_nan(), "found nan");
+                        assert!(!b.is_nan(), "found nan");
+                        assert!(*a != INFINITY, "found inf");
+                        assert!(*b != INFINITY, "found inf");
+                        assert!(*a != -INFINITY, "found -inf");
+                        assert!(*b != -INFINITY, "found -inf");
+
                         return a.partial_cmp(b).unwrap();
                     })
                     .unwrap()
